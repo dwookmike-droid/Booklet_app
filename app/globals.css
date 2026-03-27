@@ -1,15 +1,17 @@
 :root {
   color-scheme: light;
-  --bg: #f6f1e8;
-  --card: rgba(255, 252, 246, 0.88);
-  --text: #1c1814;
-  --muted: #665b4d;
-  --line: rgba(28, 24, 20, 0.12);
-  --accent: #c95a2b;
-  --accent-dark: #8f3915;
-  --success: #24553a;
-  --error: #9f2d2d;
-  --shadow: 0 20px 60px rgba(59, 39, 24, 0.12);
+  --bg: #eee2d0;
+  --panel: rgba(255, 249, 241, 0.82);
+  --ink: #201811;
+  --text: #201811;
+  --muted: #6d5b4b;
+  --line: rgba(57, 38, 22, 0.11);
+  --line-strong: rgba(57, 38, 22, 0.2);
+  --accent: #bf6435;
+  --accent-strong: #93461f;
+  --shadow: 0 24px 90px rgba(59, 37, 20, 0.11);
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Apple Myungjo", "Nanum Myeongjo", Georgia, serif;
+  --font-ui: "SF Pro Display", "SF Pro Text", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
 }
 
 * {
@@ -24,11 +26,14 @@ body {
 }
 
 body {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-ui);
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.72), transparent 32%),
-    linear-gradient(180deg, #efe4d0 0%, var(--bg) 55%, #efe7dc 100%);
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.88), transparent 24%),
+    radial-gradient(circle at top right, rgba(217, 112, 62, 0.18), transparent 18%),
+    linear-gradient(180deg, #e8d7c5 0%, var(--bg) 48%, #ecdccd 100%);
   color: var(--text);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -40,4 +45,12 @@ select {
 
 a {
   color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(191, 100, 53, 0.18);
 }

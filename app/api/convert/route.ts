@@ -2,8 +2,30 @@ import { NextResponse } from "next/server";
 import { degrees, PDFDocument, PDFEmbeddedPage, PDFPage } from "pdf-lib";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
+type Locale = "ko" | "en";
 
 type Pair = [number | null, number | null];
+
+const messages = {
+  ko: {
+    emptyPdf: "페이지가 없는 PDF입니다.",
+    missingFile: "PDF 파일이 없습니다.",
+    tooLarge: "파일 크기는 50MB 이하여야 합니다.",
+    invalidType: "PDF 파일만 업로드할 수 있습니다.",
+    convertFailed: "PDF를 소책자로 변환하지 못했습니다.",
+  },
+  en: {
+    emptyPdf: "This PDF has no pages.",
+    missingFile: "No PDF file was provided.",
+    tooLarge: "The file size must be 50MB or smaller.",
+    invalidType: "Only PDF files can be uploaded.",
+    convertFailed: "The PDF could not be converted into a booklet.",
+  },
+} as const;
+
+function resolveLocale(value: FormDataEntryValue | null): Locale {
+  return value === "en" ? "en" : "ko";
+}
 
 function buildFoldPairs(totalPages: number): Pair[] {
   const pairs: Pair[] = [];
@@ -63,12 +85,12 @@ function drawEmbeddedPage(
   });
 }
 
-async function convertPdfToBooklet(inputBytes: Uint8Array) {
+async function convertPdfToBooklet(inputBytes: Uint8Array, locale: Locale) {
   const sourcePdf = await PDFDocument.load(inputBytes);
   const sourcePages = sourcePdf.getPages();
 
   if (sourcePages.length === 0) {
-    throw new Error("페이지가 없는 PDF입니다.");
+    throw new Error(messages[locale].emptyPdf);
   }
 
   const totalPages = Math.ceil(sourcePages.length / 4) * 4;
@@ -110,24 +132,22 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file");
+    const locale = resolveLocale(formData.get("lang"));
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ error: "PDF 파일이 없습니다." }, { status: 400 });
+      return NextResponse.json({ error: messages[locale].missingFile }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "파일 크기는 50MB 이하여야 합니다." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: messages[locale].tooLarge }, { status: 400 });
     }
 
     if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      return NextResponse.json({ error: "PDF 파일만 업로드할 수 있습니다." }, { status: 400 });
+      return NextResponse.json({ error: messages[locale].invalidType }, { status: 400 });
     }
 
     const buffer = new Uint8Array(await file.arrayBuffer());
-    const outputBytes = await convertPdfToBooklet(buffer);
+    const outputBytes = await convertPdfToBooklet(buffer, locale);
 
     return new NextResponse(outputBytes, {
       status: 200,
@@ -139,7 +159,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "PDF를 소책자로 변환하지 못했습니다.";
+      error instanceof Error ? error.message : messages.ko.convertFailed;
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

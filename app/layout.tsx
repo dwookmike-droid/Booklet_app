@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PDF Booklet",
-  description: "Drop a PDF and download a booklet-ready PDF.",
+  title: "Booklet App",
+  description:
+    "Upload a PDF and export a print-ready booklet layout in Korean or English.",
 };
 
 export default function RootLayout({
@@ -12,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="en" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
